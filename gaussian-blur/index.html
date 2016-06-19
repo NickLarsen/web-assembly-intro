@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Web Assembly Benchmark: Perfect Gaussian Blur</title>
+	<style type="text/css">
+		img, canvas {
+			padding: 5px;
+			border: 1px solid gray;
+		}
+	</style>
+</head>
+<body>
+	<p>
+		<img id="original" alt="http://blog.ivank.net/fastest-gaussian-blur.html">
+		<canvas id="blurred" height="200" width="800"></canvas>
+	</p>
+	<p>
+		<button id="show-original">show original</button>
+		<button id="blur5px">blur 5px</button>
+		<button id="blur10px">blur 10px</button>
+		<span id="output"></span>
+	</p>
+	<p>
+		<label>
+			<input type="radio" name="active-method" value="js" checked>
+			javascript
+		</label>
+		<label>
+			<input type="radio" name="active-method" value="asm">
+			asm.js
+		</label>
+		<label>
+			<input type="radio" name="active-method" value="asm-handmade">
+			asm.js handmade
+		</label>
+	</p>
+	<script type="text/javascript" src="gaussian-blur.js"></script>
+	<script type="text/javascript" src="gaussian-blur.asm.js"></script>
+	<script type="text/javascript" src="gaussian-blur.handmade-asm.js"></script>
+	<script type="text/javascript">
+		function initApp() {
+			var height = img.naturalHeight;
+			var width = img.naturalWidth;
+			var canvas = document.getElementById("blurred");
+			var drawContext = canvas.getContext("2d");
+			drawContext.drawImage(img, 0, 0);
+			var originalRGBA = drawContext.getImageData(0, 0, width, height);
+			var output = document.getElementById("output");
+
+			function showOriginal() {
+				drawContext.putImageData(originalRGBA, 0, 0);
+			}
+
+			var jsImageData = drawContext.createImageData(width, height);
+			function showBlurJs(radius) {
+				gaussBlur_1(originalRGBA.data, jsImageData.data, width, height, radius);
+				drawContext.putImageData(jsImageData, 0, 0);
+			}
+
+			var heap = Module.HEAPU8;
+			var imgDataLength = originalRGBA.data.length;
+			var originalDataPtr = Module._malloc(imgDataLength);
+			heap.set(originalRGBA.data, originalDataPtr);
+			var blurredPointer = Module._malloc(imgDataLength);
+			var asmImageData = drawContext.createImageData(width, height);
+			function showBlurAsm(radius) {
+				Module._gaussianBlur(originalDataPtr, blurredPointer, width, height, radius);
+				var blurredImageData = heap.subarray(blurredPointer, blurredPointer+imgDataLength);
+				asmImageData.data.set(blurredImageData);
+				drawContext.putImageData(asmImageData, 0, 0);
+			}
+
+			var originalDataPtr2 = 0;
+			var heap2 = GaussianBlurAsmModuleGlobals.HEAPU8;
+			heap2.set(originalRGBA.data, originalDataPtr2);
+			var blurredPointer2 = imgDataLength;
+			var asmImageData2 = drawContext.createImageData(width, height);
+			function showBlurAsmHandmade(radius) {
+				GaussianBlurAsmModule.gaussianBlur(originalDataPtr2, blurredPointer2, width, height, radius);
+				var blurredImageData = heap2.subarray(blurredPointer2, blurredPointer2+imgDataLength);
+				asmImageData2.data.set(blurredImageData);
+				console.log(asmImageData2.data[1237]);
+				console.log(heap2[blurredPointer2 + 1237]);
+				drawContext.putImageData(asmImageData2, 0, 0);
+			}
+
+			function showPerf(action) {
+				return function() {
+					output.innerHTML = "running...";
+					var start = performance.now();
+					action();
+					var end = performance.now();
+					output.innerHTML = "took: " + (end - start) + "ms";
+				};
+			}
+
+			var blurMethods = {
+				"asm": showBlurAsm,
+				"asm-handmade": showBlurAsmHandmade,
+				"js": showBlurJs
+			};
+			var doBlur = function(radius) {
+				function getActiveMethod(){
+					var options = document.getElementsByName("active-method");
+					if (options) {
+					    for (var i = 0; i < options.length; i++) {
+					        if (options[i].checked){
+					             return options[i].value;
+					        }
+					    }
+					}
+					return null;
+				}
+				return function() { 
+					var activeMethod = getActiveMethod();
+					console.log("blur method: " + activeMethod);
+					blurMethods[activeMethod](radius); 
+				};
+			};
+
+			document.getElementById("show-original")
+				.addEventListener("click", showPerf(showOriginal), false);
+			document.getElementById("blur5px")
+				.addEventListener("click", showPerf(doBlur(5)), false);
+			document.getElementById("blur10px")
+				.addEventListener("click", showPerf(doBlur(10)), false);
+		}
+
+		var img = document.getElementById("original");
+		img.onload = initApp;
+		img.src = "cballs.png";
+	</script>
+</body>
+</html>
