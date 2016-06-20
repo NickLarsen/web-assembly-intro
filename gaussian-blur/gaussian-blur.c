@@ -6,7 +6,7 @@ void gaussianBlur(unsigned char * scl, unsigned char * tcl, int w, int h, int r)
 	double twoRSquared = 2.0*r*r;
     double PItwoRSquared = M_PI * twoRSquared;
     int wMinusOne = w - 1;
-    int gMinusOne = h - 1;
+    int hMinusOne = h - 1;
     int i, j, iy, ix;
     for(i=0; i<h; i++) {
         for(j=0; j<w; j++) {
@@ -20,7 +20,7 @@ void gaussianBlur(unsigned char * scl, unsigned char * tcl, int w, int h, int r)
                     int x = ix > 0 ? ix : 0;
                     x = wMinusOne < x ? wMinusOne : x;
                     int y = iy > 0 ? iy : 0;
-                    y = gMinusOne < y ? gMinusOne : y;
+                    y = hMinusOne < y ? hMinusOne : y;
                     int dsq = (ix-j)*(ix-j)+(iy-i)*(iy-i);
                     double wght = exp( -dsq / twoRSquared ) / PItwoRSquared;
                     wsum += wght;

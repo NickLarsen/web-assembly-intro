@@ -72,7 +72,7 @@
 			}
 
 			var originalDataPtr2 = 0;
-			var heap2 = GaussianBlurAsmModuleGlobals.HEAPU8;
+			var heap2 = GaussianBlurAsmModule.HEAPU8;
 			heap2.set(originalRGBA.data, originalDataPtr2);
 			var blurredPointer2 = imgDataLength;
 			var asmImageData2 = drawContext.createImageData(width, height);
@@ -80,8 +80,6 @@
 				GaussianBlurAsmModule.gaussianBlur(originalDataPtr2, blurredPointer2, width, height, radius);
 				var blurredImageData = heap2.subarray(blurredPointer2, blurredPointer2+imgDataLength);
 				asmImageData2.data.set(blurredImageData);
-				console.log(asmImageData2.data[1237]);
-				console.log(heap2[blurredPointer2 + 1237]);
 				drawContext.putImageData(asmImageData2, 0, 0);
 			}
 
