@@ -34,10 +34,15 @@
 			<input type="radio" name="active-method" value="asm-handmade">
 			asm.js handmade
 		</label>
+		<label>
+			<input type="radio" name="active-method" value="wa">
+			web assembly
+		</label>
 	</p>
 	<script type="text/javascript" src="gaussian-blur.js"></script>
 	<script type="text/javascript" src="gaussian-blur.asm.js"></script>
 	<script type="text/javascript" src="gaussian-blur.handmade-asm.js"></script>
+	<script type="text/javascript" src="gaussian-blur.wa.js"></script>
 	<script type="text/javascript">
 		function initApp() {
 			var height = img.naturalHeight;
@@ -58,16 +63,17 @@
 				drawContext.putImageData(jsImageData, 0, 0);
 			}
 
-			var heap = Module.HEAPU8;
+			var moduleAsm = new ModuleAsmJs();
+			var heap = moduleAsm.HEAPU8;
 			var imgDataLength = originalRGBA.data.length;
-			var originalDataPtr = Module._malloc(imgDataLength);
+			var originalDataPtr = moduleAsm._malloc(imgDataLength);
 			heap.set(originalRGBA.data, originalDataPtr);
-			var blurredPointer = Module._malloc(imgDataLength);
+			var blurredPointer = moduleAsm._malloc(imgDataLength);
 			var asmImageData = drawContext.createImageData(width, height);
 			function showBlurAsm(radius) {
-				Module._gaussianBlur(originalDataPtr, blurredPointer, width, height, radius);
-				var blurredImageData = heap.subarray(blurredPointer, blurredPointer+imgDataLength);
-				asmImageData.data.set(blurredImageData);
+				moduleAsm._gaussianBlur(originalDataPtr, blurredPointer, width, height, radius);
+				var blurredImageRgb = heap.subarray(blurredPointer, blurredPointer+imgDataLength);
+				asmImageData.data.set(blurredImageRgb);
 				drawContext.putImageData(asmImageData, 0, 0);
 			}
 
@@ -78,9 +84,38 @@
 			var asmImageData2 = drawContext.createImageData(width, height);
 			function showBlurAsmHandmade(radius) {
 				GaussianBlurAsmModule.gaussianBlur(originalDataPtr2, blurredPointer2, width, height, radius);
-				var blurredImageData = heap2.subarray(blurredPointer2, blurredPointer2+imgDataLength);
-				asmImageData2.data.set(blurredImageData);
+				var blurredImageRgb = heap2.subarray(blurredPointer2, blurredPointer2+imgDataLength);
+				asmImageData2.data.set(blurredImageRgb);
 				drawContext.putImageData(asmImageData2, 0, 0);
+			}
+
+			var moduleWa, heapWa, originalDataPtrWa, blurredPointerWa;
+			fetch("gaussian-blur.wa.wasm")
+				.then(function(response) {
+					return response.arrayBuffer();
+				})
+				.then(function(buffer) {
+					var baseModule = {};
+					baseModule["wasmBinary"] = buffer;
+					try {
+						moduleWa = new ModuleWa(baseModule);
+					}
+					catch(e) {
+						console.log("web assembly failed: " + e.toString());
+						return;
+					}
+					heapWa = moduleWa.HEAPU8;
+					originalDataPtrWa = moduleWa._malloc(imgDataLength);
+					heapWa.set(originalRGBA.data, originalDataPtrWa);
+					blurredPointerWa = moduleWa._malloc(imgDataLength);
+					blurMethods["wa"] = showBlurWa;
+				});
+			var asmImageDataWa = drawContext.createImageData(width, height);
+			function showBlurWa(radius) {
+				moduleWa._gaussianBlur(originalDataPtrWa, blurredPointerWa, width, height, radius);
+				var blurredImageRgb = heapWa.subarray(blurredPointerWa, blurredPointerWa+imgDataLength);
+				asmImageDataWa.data.set(blurredImageRgb);
+				drawContext.putImageData(asmImageDataWa, 0, 0);
 			}
 
 			function showPerf(action) {
@@ -113,6 +148,10 @@
 				return function() { 
 					var activeMethod = getActiveMethod();
 					console.log("blur method: " + activeMethod);
+					if (!blurMethods[activeMethod]) {
+						alert("the '" + activeMethod + "' method is not available");
+						return;
+					}
 					blurMethods[activeMethod](radius); 
 				};
 			};

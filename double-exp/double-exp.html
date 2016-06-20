@@ -14,31 +14,52 @@
 	<ul id="output"></ul>
 	<script type="text/javascript" src="double-exp.asm.js"></script>
 	<script type="text/javascript" src="double-exp.handmade-asm.js"></script>
+	<script type="text/javascript" src="double-exp.wa.js"></script>
 	<script type="text/javascript">
 		function doubleExp(value) {
 			return Math.exp(value)*2;
 		}
+		var asmModule = new ModuleAsmJs();
+		var waModule;
 		var methods = [
 			{ name: "js", func: doubleExp }, 
-			{ name: "asm", func: Module._doubleExp }, 
+			{ name: "asm", func: asmModule._doubleExp }, 
 			{ name: "handmade asm", func: HandmadeDoubleExp.doubleExp }
 		];
-		var output = document.getElementById("output");
-		var lines = [];
-		for(var i = 0; i < 5; i++) {
-			lines.push("<li>");
-			lines.push(i.toString());
-			lines.push("<ul>");
-			for(var j = 0; j < methods.length; j++) {
-				var method = methods[j];
+		function doTest() {
+			var output = document.getElementById("output");
+			var lines = [];
+			for(var i = 0; i < 5; i++) {
 				lines.push("<li>");
-				lines.push("<span>" + method.name + ":</span> " + method.func(i))
+				lines.push(i.toString());
+				lines.push("<ul>");
+				for(var j = 0; j < methods.length; j++) {
+					var method = methods[j];
+					lines.push("<li>");
+					lines.push("<span>" + method.name + ":</span> " + method.func(i))
+					lines.push("</li>");
+				}
+				lines.push("</ul>");
 				lines.push("</li>");
 			}
-			lines.push("</ul>");
-			lines.push("</li>");
+			output.innerHTML = lines.join("");
 		}
-		output.innerHTML = lines.join("");
+		fetch("double-exp.wa.wasm")
+			.then(function(response) {
+				return response.arrayBuffer();
+			})
+			.then(function(buffer) {
+				var baseModule = {};
+				baseModule["wasmBinary"] = buffer;
+				try{
+					waModule = new ModuleWa(baseModule);
+					methods.push({ name: "wa", func: waModule._doubleExp });
+				}
+				catch(e) {
+					console.log("waModule creation failed: " + e.toString());
+				}
+				doTest();
+			});
 	</script>
 </body>
 </html>
