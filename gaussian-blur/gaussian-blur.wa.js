@@ -1,8 +1,11 @@
+var ModuleWa = function(Module) {
+  Module = Module || {};
+
 function integrateWasmJS(Module) {
  var method = Module["wasmJSMethod"] || Module["wasmJSMethod"] || "native-wasm" || "native-wasm,interpret-s-expr";
- var wasmTextFile = Module["wasmTextFile"] || "double-exp.wast";
- var wasmBinaryFile = Module["wasmBinaryFile"] || "double-exp.wasm";
- var asmjsCodeFile = Module["asmjsCodeFile"] || "double-exp.asm.js";
+ var wasmTextFile = Module["wasmTextFile"] || "gaussian-blur.wa.wast";
+ var wasmBinaryFile = Module["wasmBinaryFile"] || "gaussian-blur.wa.wasm";
+ var asmjsCodeFile = Module["asmjsCodeFile"] || "gaussian-blur.wa.asm.js";
  var wasmPageSize = 64 * 1024;
  var asm2wasmImports = {
   "f64-rem": (function(x, y) {
@@ -222,7 +225,7 @@ function integrateWasmJS(Module) {
  var methodHandler = Module["asm"];
 }
 var Module;
-if (!Module) Module = (typeof Module !== "undefined" ? Module : null) || {};
+if (!Module) Module = (typeof ModuleWa !== "undefined" ? ModuleWa : null) || {};
 var moduleOverrides = {};
 for (var key in Module) {
  if (Module.hasOwnProperty(key)) {
@@ -1277,7 +1280,7 @@ var ASM_CONSTS = [];
 STATIC_BASE = 1024;
 STATICTOP = STATIC_BASE + 2736;
 __ATINIT__.push();
-memoryInitializer = "double-exp.js.mem";
+memoryInitializer = "gaussian-blur.wa.js.mem";
 var STATIC_BUMP = 2736;
 var tempDoublePtr = STATICTOP;
 STATICTOP += 16;
@@ -1355,6 +1358,7 @@ function _emscripten_memcpy_big(dest, src, num) {
  return dest;
 }
 Module["_memcpy"] = _memcpy;
+Module["_round"] = _round;
 Module["_pthread_self"] = _pthread_self;
 function ___syscall140(which, varargs) {
  SYSCALLS.varargs = varargs;
@@ -1489,15 +1493,16 @@ Module.asmLibraryArg = {
 
 var asm =Module["asm"]// EMSCRIPTEN_END_ASM
 (Module.asmGlobalArg, Module.asmLibraryArg, buffer);
-var _free = Module["_free"] = asm["_free"];
+var _fflush = Module["_fflush"] = asm["_fflush"];
 var runPostSets = Module["runPostSets"] = asm["runPostSets"];
+var _round = Module["_round"] = asm["_round"];
+var _gaussianBlur = Module["_gaussianBlur"] = asm["_gaussianBlur"];
 var _pthread_self = Module["_pthread_self"] = asm["_pthread_self"];
 var _memset = Module["_memset"] = asm["_memset"];
 var _malloc = Module["_malloc"] = asm["_malloc"];
 var _memcpy = Module["_memcpy"] = asm["_memcpy"];
 var _bitshift64Lshr = Module["_bitshift64Lshr"] = asm["_bitshift64Lshr"];
-var _fflush = Module["_fflush"] = asm["_fflush"];
-var _doubleExp = Module["_doubleExp"] = asm["_doubleExp"];
+var _free = Module["_free"] = asm["_free"];
 var ___errno_location = Module["___errno_location"] = asm["___errno_location"];
 var _bitshift64Shl = Module["_bitshift64Shl"] = asm["_bitshift64Shl"];
 var dynCall_ii = Module["dynCall_ii"] = asm["dynCall_ii"];
@@ -1686,3 +1691,6 @@ run();
 
 
 
+
+  return Module;
+};
