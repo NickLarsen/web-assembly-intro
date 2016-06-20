@@ -1585,6 +1585,96 @@ function Ha(a) {
  return;
 }
 
+function ta(b, c, e, f, g) {
+ b = b | 0;
+ c = c | 0;
+ e = e | 0;
+ f = f | 0;
+ g = g | 0;
+ var h = 0.0, i = 0.0, j = 0.0, k = 0.0, l = 0.0, m = 0, n = 0, o = 0, p = 0.0, q = 0, r = 0, s = 0.0, t = 0, u = 0, v = 0.0, w = 0.0, x = 0.0, y = 0, z = 0, A = 0, B = 0, C = 0, D = 0, E = 0.0, F = 0;
+ w = +(g | 0);
+ v = +P(+(w * 2.57));
+ w = w * (w * 2.0);
+ x = w * 3.141592653589793;
+ y = e + -1 | 0;
+ z = f + -1 | 0;
+ if ((f | 0) <= 0) return;
+ A = (e | 0) > 0;
+ B = 0;
+ do {
+  if (A) {
+   s = +(B | 0);
+   r = ~~(s - v);
+   s = v + s + 1.0;
+   t = +(r | 0) < s;
+   u = Q(B, e) | 0;
+   C = 0;
+   do {
+    a : do if (t) {
+     p = +(C | 0);
+     o = ~~(p - v);
+     p = v + p + 1.0;
+     if (+(o | 0) < p) {
+      k = 0.0;
+      l = 0.0;
+      j = 0.0;
+      q = r;
+      i = 0.0;
+      h = 0.0;
+     } else {
+      g = r;
+      while (1) {
+       g = g + 1 | 0;
+       if (!(+(g | 0) < s)) {
+        k = 0.0;
+        l = 0.0;
+        j = 0.0;
+        i = 0.0;
+        h = 0.0;
+        break a;
+       }
+      }
+     }
+     do {
+      n = (q | 0) > 0 ? q : 0;
+      m = q - B | 0;
+      m = Q(m, m) | 0;
+      n = Q((z | 0) < (n | 0) ? z : n, e) | 0;
+      g = o;
+      do {
+       D = (g | 0) > 0 ? g : 0;
+       F = g - C | 0;
+       E = +Ia(+(0 - (m + (Q(F, F) | 0)) | 0) / w) / x;
+       h = h + E;
+       D = ((y | 0) < (D | 0) ? y : D) + n << 2;
+       i = i + E * +(d[b + D >> 0] | 0);
+       j = j + E * +(d[b + (D | 1) >> 0] | 0);
+       l = l + E * +(d[b + (D | 2) >> 0] | 0);
+       k = k + E * +(d[b + (D | 3) >> 0] | 0);
+       g = g + 1 | 0;
+      } while (+(g | 0) < p);
+      q = q + 1 | 0;
+     } while (+(q | 0) < s);
+    } else {
+     k = 0.0;
+     l = 0.0;
+     j = 0.0;
+     i = 0.0;
+     h = 0.0;
+    } while (0);
+    F = C + u << 2;
+    a[c + F >> 0] = ~~+Oa(+(i / h));
+    a[c + (F | 1) >> 0] = ~~+Oa(+(j / h));
+    a[c + (F | 2) >> 0] = ~~+Oa(+(l / h));
+    a[c + (F | 3) >> 0] = ~~+Oa(+(k / h));
+    C = C + 1 | 0;
+   } while ((C | 0) != (e | 0));
+  }
+  B = B + 1 | 0;
+ } while ((B | 0) != (f | 0));
+ return;
+}
+
 function xa(a, b, d) {
  a = a | 0;
  b = b | 0;
@@ -1949,7 +2039,7 @@ function ua(a) {
  return a | 0;
 }
 
-function Qa(a, b, c, d) {
+function Ra(a, b, c, d) {
  a = a | 0;
  b = b | 0;
  c = c | 0;
@@ -1968,7 +2058,7 @@ function va(a) {
 
 function wa() {
  var a = 0;
- if (!(c[290] | 0)) a = 1204; else a = c[(Oa() | 0) + 64 >> 2] | 0;
+ if (!(c[290] | 0)) a = 1204; else a = c[(Pa() | 0) + 64 >> 2] | 0;
  return a | 0;
 }
 function ma(a) {
@@ -1980,7 +2070,7 @@ function ma(a) {
  return b | 0;
 }
 
-function Ta(a, b, c) {
+function Ua(a, b, c) {
  a = a | 0;
  b = b | 0;
  c = c | 0;
@@ -1997,7 +2087,7 @@ function qa(a, b) {
  }
 }
 
-function Pa(a, b) {
+function Qa(a, b) {
  a = a | 0;
  b = b | 0;
  return ja[a & 1](b | 0) | 0;
@@ -2009,7 +2099,12 @@ function ya(a) {
  return;
 }
 
-function Ra(a, b) {
+function Oa(a) {
+ a = +a;
+ return a >= 0.0 ? +C(a + .5) : +P(a - .5);
+}
+
+function Sa(a, b) {
  a = a | 0;
  b = b | 0;
  la[a & 1](b | 0);
@@ -2022,12 +2117,7 @@ function pa(a, b) {
  j = b;
 }
 
-function ta(a) {
- a = +a;
- return +(+Ia(a) * 2.0);
-}
-
-function Sa(a) {
+function Ta(a) {
  a = a | 0;
  T(0);
  return 0;
@@ -2053,7 +2143,7 @@ function oa(a) {
  i = a;
 }
 
-function Ua(a) {
+function Va(a) {
  a = a | 0;
  T(2);
 }
@@ -2066,26 +2156,27 @@ function na() {
  return i | 0;
 }
 
-function Oa() {
+function Pa() {
  return 0;
 }
 
 // EMSCRIPTEN_END_FUNCS
 
- var ja = [ Sa, ua ];
- var ka = [ Ta, Ba, Aa, xa ];
- var la = [ Ua, ya ];
+ var ja = [ Ta, ua ];
+ var ka = [ Ua, Ba, Aa, xa ];
+ var la = [ Va, ya ];
  return {
-  _free: Ha,
-  _pthread_self: Oa,
+  _fflush: Ea,
+  _round: Oa,
+  _gaussianBlur: ta,
+  _pthread_self: Pa,
   _memset: Ka,
   _malloc: Ga,
   _memcpy: Na,
   _bitshift64Lshr: La,
-  _fflush: Ea,
-  _bitshift64Shl: Ma,
+  _free: Ha,
   ___errno_location: wa,
-  _doubleExp: ta,
+  _bitshift64Shl: Ma,
   runPostSets: Ja,
   stackAlloc: ma,
   stackSave: na,
@@ -2094,9 +2185,9 @@ function Oa() {
   setThrew: qa,
   setTempRet0: ra,
   getTempRet0: sa,
-  dynCall_ii: Pa,
-  dynCall_iiii: Qa,
-  dynCall_vi: Ra
+  dynCall_ii: Qa,
+  dynCall_iiii: Ra,
+  dynCall_vi: Sa
  };
 })
 
